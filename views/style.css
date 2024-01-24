@@ -94,7 +94,7 @@ body
  }
 
 
- .locate{
+ .butt{
     margin: 0; 
     padding: 10px;
     
@@ -145,10 +145,32 @@ body
 
 #foot
 {
+    position: fixed;
+    left: 0;
+    bottom: 0;
     text-align: center;
     background-color: #f76c6c;
     margin-top: 20px;
-   
 }
 
+img {
+  width: 200px;
+  height: 250px;
+}
+
+.card {
+  margin-top: 60px;
+  margin-left: 40px;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.8s;
+  width: 40%;
+}
+
+.card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+.container {
+  padding: 2px 22px;
+}
 
