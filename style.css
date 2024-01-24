@@ -94,7 +94,7 @@ body
  }
 
 
- .butt{
+ .locate{
     margin: 0; 
     padding: 10px;
     
@@ -148,6 +148,7 @@ body
     text-align: center;
     background-color: #f76c6c;
     margin-top: 20px;
+   
 }
 
 
