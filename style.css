@@ -148,6 +148,7 @@ body
     text-align: center;
     background-color: #f76c6c;
     margin-top: 20px;
+    
    
 }
 
@@ -218,3 +219,16 @@ body
 }
 
 .dropdown a:hover {background-color: #ddd;}
+
+.login {
+  width: 30%;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.9);
+  position: relative;            
+  top: 20px;       
+      
+  font-family: 'Jost', sans-serif;
+}
