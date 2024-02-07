@@ -26,6 +26,10 @@ app.get("/views/add-event.html", (req, res) => {
     res.render("http://localhost:3000/views/add-event.html");
 });
 
+app.get("views/admin.html",(req, res) => {
+    res.render('http://localhost:3000/views/admin.html', {username: req.session.username});
+})
+
 // MongoDB connection for Grubshare1 database
 mongoose.connect('mongodb://localhost:27017/Grubshare1', { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
@@ -114,55 +118,81 @@ app.post("/views/add-event.html", async (req, res) => {
         console.log("Event saved:", savedEvent);
 
         res.status(201).json({ message: 'Event registered successfully' });
+
+        // Retrieve all events from the database
+        const events = await Event.find();
+
+        // Render an HTML page with the retrieved event data
+        res.render('admin-event.html', { events }); //
     } catch (error) {
         console.error("Error registering event:", error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// Route for registering users
-app.post("/views/newsignup.html", async (req, res) => {
-    try {
-        const userData = {
-            email: req.body.email,
-            fullname: req.body.fullname,
-            name: req.body.username,
-            password: req.body.password,
-            confpassword: req.body.confpassword
-        };
-
-        const existingUser = await User.findOne({ email: userData.email });
-
-        if (existingUser) {
-            res.send("User already exists. Please choose a different username");
-        } else {
-            const saltRounds = 10;
-            const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
-            userData.password = hashedPassword;
-            const newUser = new User(userData);
-            await newUser.save();
-            res.status(201).json({ message: 'User registered successfully' });
-        }
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+//Register user
+app.post("/views/newsignup.html", async (req,res) =>{
+    const data = {
+        email: req.body.email,
+        fullname: req.body.fullname,
+        name: req.body.username,
+        password: req.body.password,
+        confpassword: req.body.confpassword
     }
+
+    //check if user already exist
+    const existingUser = await User.findOne({email: data.email});
+
+    //if exists send a pop up message for the user
+    if(existingUser){        
+        res.send('<script>alert("User already exists. Please choose a different email id"); window.location.href = "http://localhost:3000/views/newsignup.html"; </script>');
+    }
+    else{
+        //check length of password
+        if (data.password.length < 6){
+                return res.send('<script>alert("Password is too small"); window.location.href = "http://localhost:3000/views/newsignup.html"; </script>');  
+        }
+        
+        //check whether password and confirm password are same
+        if(data.password == data.confpassword){
+            //hash the password
+            const saltRounds = 10; //number of salt round for bcrypt
+            const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+            const hashedConfPassword = await bcrypt.hash(data.confpassword, saltRounds);
+
+            //Replace the hash password and confirm password with original passwords
+            data.password = hashedPassword; 
+            data.confpassword = hashedConfPassword; 
+
+            const userdata = await User.insertMany(data);
+            console.log(userdata);
+            res.redirect("http://localhost:3000/views/newlogin.html");
+        }
+        else{
+            return res.send('<script>alert("Passwords do not match"); window.location.href = "http://localhost:3000/views/newsignup.html"; </script>');   
+        }   
+    }        
 });
 
-// Route for login
-app.post("/views/newlogin.html", async (req, res) => {
-    try {
-        const user = await User.findOne({ email: req.body.log_email });
-        if (!user) {
-            return res.send("Username cannot be found");
+//Login user
+app.post("/views/newlogin.html", async (req,res) =>{
+    try{
+        //check if the email already exists in the database
+        const check = await User.findOne({email: req.body.log_email});    
+        //if exists it should add a pop up message    
+        if(!check){
+            return res.send('<script>alert("Email does not exist"); window.location.href = "http://localhost:3000/views/newlogin.html"; </script>');
         }
-        const isPasswordMatch = await bcrypt.compare(req.body.log_password, user.password);
-        if (isPasswordMatch) {
-            res.redirect("http://localhost:3000/index.html");
-        } else {
-            return res.send("Wrong password");
+        //compare hashed password from database with the plain text
+        const isPasswordMatch = await bcrypt.compare(req.body.log_password, check.password);
+        
+        if(isPasswordMatch){
+            res.redirect("http://localhost:3000/views/admin.html");
+        }else {
+            res.send('<script>alert("Incorrect Password"); window.location.href = "http://localhost:3000/views/newlogin.html"; </script>');
         }
-    } catch (error) {
-        return res.send("Wrong Details");
+    }catch{
+        return res.send("wrong Details");
     }
 });
 
