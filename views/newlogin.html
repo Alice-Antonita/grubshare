@@ -78,14 +78,14 @@ h1, h2 {
       <div class="container login" style="background-color: #f8e9a1;">
        
         <!-- <h2>PLEASE SIGN IN TO POST YOUR EVENT</h2> -->
-        <form action="/login" method="post">
+        <form id="log_form" action="/views/newlogin.html" method="post">
             <div class="form-group">
-                <label for="username">Email</label>
-                <input type="email" id="loginemail" name="loginemail" required>
+                <label for="email">Email</label>
+                <input type="email" id="log_email" name="log_email" required>
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="log_password" name="log_password" required>
             </div>
            
             <div class="mb-3" style="text-align: center;">
@@ -93,7 +93,7 @@ h1, h2 {
               </div>
         </form>
         <div class="footer">
-            <p>Don't have an account? <a href="/v">Sign Up</a></p>
+            <p>Don't have an account? <a href="/views/newsignup.html">Sign Up</a></p>
         </div>
     </div>
     <footer>
