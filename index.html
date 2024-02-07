@@ -30,17 +30,29 @@
       <div class="row mt-5">
         
         <div class="col-md-6" style="text-align: center;">
-            <p style="font-size: 50PX;font-family: 'Jost', sans-serif ;color: #f8e9a1;">LOCATE FOOD?</p>
-           
-            <div class="locate">
-              <div class="box">
-                    <form name="search">
-                <input type="text" class="input" name="txt" onmouseout="this.value = ''; this.blur();">
-                    </form>
-                    <i class="fas fa-search"></i>
-              </div>
-            </div>
+           <form>
+            <label for="myHouse">Locate an Event</label>
+            <select id="select-id" onchange="siteRedirect()">              
+            <option value="" selected="">Choose a location..</option>
+            <option value="views/event-list.html">Burwood</option>
+            <option value="views/event-list.html">Box Hill</option>
+            <option value="views/event-list.html">Point Cook</option>
+            <option value="views/event-list.html">Chadstone</option>
+            <option value="views/event-list.html">Dandenong</option>
+            <option value="views/event-list.html">CBD</option>
+            </select>
+            </form>
         </div>
+
+        <script>
+          function siteRedirect() {
+            var selectbox = document.getElementById("select-id");
+            var selectedValue = selectbox.options[selectbox.selectedIndex].value;
+            window.location.href = selectedValue;
+          }
+        
+        </script>
+
         <div class="col-md-6">
            
             <p style="font-size: 50PX;font-family: 'Jost', sans-serif ;color: #f8e9a1;">SHARE FOOD?</p>

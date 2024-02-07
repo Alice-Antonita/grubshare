@@ -1,35 +1,134 @@
 const express = require("express");
-const pasth = require("path");
-const bcrypt = require("bcrypt");//import bcrypt for hashing password
-const collection = require("./config");
+const bcrypt = require("bcrypt");
+const mongoose = require("mongoose");
 
-let app = express();
-let port = process.env.port || 3000;
+const app = express();
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-
 app.use(express.static(__dirname + '/'));
 
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 
-app.get('/', (req, res)=>{
+app.get('/', (req, res) => {
     res.render('index.html');
 });
 
-//get login
-app.get("/views/newslogin.html", (req,res) => {
+app.get("/views/newslogin.html", (req, res) => {
     res.render("http://localhost:3000/views/newlogin.html");
 });
 
-//get signup
-app.get("/views/newsignup.html", (req,res) => {
+app.get("/views/newsignup.html", (req, res) => {
     res.render("http://localhost:3000/views/newsignup.html");
 });
 
+app.get("/views/add-event.html", (req, res) => {
+    res.render("http://localhost:3000/views/add-event.html");
+});
 
 app.get("views/admin.html",(req, res) => {
     res.render('http://localhost:3000/views/admin.html', {username: req.session.username});
 })
+
+// MongoDB connection for Grubshare1 database
+mongoose.connect('mongodb://localhost:27017/Grubshare1', { useNewUrlParser: true, useUnifiedTopology: true });
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
+// Define Event Schema and Model
+const EventSchema = new mongoose.Schema({
+    organiser: {
+        type: String,
+        required: true
+    },
+    ename: {
+        type: String,
+        required: true
+    },
+    edate: {
+        type: String,
+        required: true
+    },
+    etime: {
+        type: String,
+        required: true
+    },
+    elocation: {
+        type: String,
+        required: true
+    },
+    edesc: {
+        type: String,
+        required: true
+    },
+    eimage: {
+        type: String,
+        required: true
+    }
+});
+
+
+const Event = mongoose.model('Event', EventSchema);
+
+// Define User Schema and Model
+const UserSchema = new mongoose.Schema({
+    email: {
+        type: String,
+        required: true
+    },
+    fullname: {
+        type: String,
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    confpassword: {
+        type: String,
+        required: true
+    }
+});
+
+const User = mongoose.model('User', UserSchema);
+
+// Route for registering events
+app.post("/views/add-event.html", async (req, res) => {
+    try {
+        console.log("Received request body:", req.body);
+
+        const eventData = {
+            organiser: req.body.organiser,
+            ename: req.body.ename,
+            edate: req.body.edate,
+            etime: req.body.etime,
+            elocation: req.body.elocation,
+            edesc: req.body.edesc,
+            eimage: req.body.eimage
+        };
+
+        console.log("Creating event with data:", eventData);
+
+        const newEvent = new Event(eventData);
+        const savedEvent = await newEvent.save();
+        console.log("Event saved:", savedEvent);
+
+        res.status(201).json({ message: 'Event registered successfully' });
+
+        // Retrieve all events from the database
+        const events = await Event.find();
+
+        // Render an HTML page with the retrieved event data
+        res.render('admin-event.html', { events }); //
+    } catch (error) {
+        console.error("Error registering event:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
 //Register user
 app.post("/views/newsignup.html", async (req,res) =>{
@@ -42,7 +141,7 @@ app.post("/views/newsignup.html", async (req,res) =>{
     }
 
     //check if user already exist
-    const existingUser = await collection.findOne({email: data.email});
+    const existingUser = await User.findOne({email: data.email});
 
     //if exists send a pop up message for the user
     if(existingUser){        
@@ -65,7 +164,7 @@ app.post("/views/newsignup.html", async (req,res) =>{
             data.password = hashedPassword; 
             data.confpassword = hashedConfPassword; 
 
-            const userdata = await collection.insertMany(data);
+            const userdata = await User.insertMany(data);
             console.log(userdata);
             res.redirect("http://localhost:3000/views/newlogin.html");
         }
@@ -79,7 +178,7 @@ app.post("/views/newsignup.html", async (req,res) =>{
 app.post("/views/newlogin.html", async (req,res) =>{
     try{
         //check if the email already exists in the database
-        const check = await collection.findOne({email: req.body.log_email});    
+        const check = await User.findOne({email: req.body.log_email});    
         //if exists it should add a pop up message    
         if(!check){
             return res.send('<script>alert("Email does not exist"); window.location.href = "http://localhost:3000/views/newlogin.html"; </script>');
@@ -97,6 +196,6 @@ app.post("/views/newlogin.html", async (req,res) =>{
     }
 });
 
-app.listen(port, ()=>{
-    console.log('server started - 2');
+app.listen(PORT, () => {
+    console.log('Server started');
 });
