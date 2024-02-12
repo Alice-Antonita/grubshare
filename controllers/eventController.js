@@ -25,3 +25,14 @@ exports.addEvent = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.getEvent = async (req, res) => {
+    try {
+        const events = await Event.find({});
+        res.json(events);
+        console.log(res.json(events)) // Send JSON response containing events data
+    } catch (error) {
+        console.error("Error fetching events:", error);
+        res.status(500).json({ message: error.message });
+    }
+};
