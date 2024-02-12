@@ -25,6 +25,8 @@ app.post("/views/add-event.html", eventController.addEvent);
 app.post("/views/newsignup.html", userController.signup);
 app.post("/views/newlogin.html", userController.login);
 
+app.get("/data", eventController.getEvent);
+
 app.listen(PORT, () => {
     console.log('Server started');
 });
