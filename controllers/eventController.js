@@ -28,7 +28,8 @@ exports.addEvent = async (req, res) => {
 
 exports.getEvent = async (req, res) => {
     try {
-        const events = await Event.find({});
+        const events = await Event.find({}).toArray(callback);
+        res.render('events', { events });
         res.json(events);
         console.log(res.json(events)) // Send JSON response containing events data
     } catch (error) {
